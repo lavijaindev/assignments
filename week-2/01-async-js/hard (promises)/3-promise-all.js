@@ -9,7 +9,7 @@ function wait1(t1) {
     let p = new Promise((resolve) => {
         setTimeout(() => {
             resolve();
-        }, t1);
+        }, t1 * 1000);
     });
     return p;
 
@@ -19,7 +19,7 @@ function wait2(t2) {
     let p = new Promise((resolve) => {
         setTimeout(() => {
             resolve();
-        }, t2);
+        }, t2 * 1000);
     });
     return p;
 }
@@ -28,7 +28,7 @@ function wait3(t3) {
     let p = new Promise((resolve) => {
         setTimeout(() => {
             resolve();
-        }, t3);
+        }, t3 * 1000);
     });
     return p;
 }
@@ -46,13 +46,5 @@ function calculateTime(t1, t2, t3) {
         return totalTime;
     });
 }
-
-calculateTime(1000, 2000, 3000)
-    .then((totalTime) => {
-        console.log(totalTime);
-    })
-    .catch((error) => {
-        console.error(error);
-    });
 
 module.exports = calculateTime;
