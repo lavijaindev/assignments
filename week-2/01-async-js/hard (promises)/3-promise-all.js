@@ -4,20 +4,55 @@
  * Return a promise.all which return the time in milliseconds it takes to complete the entire operation.
  */
 
-function wait1(t) {
+function wait1(t1) {
+
+    let p = new Promise((resolve) => {
+        setTimeout(() => {
+            resolve();
+        }, t1);
+    });
+    return p;
 
 }
 
-function wait2(t) {
-
+function wait2(t2) {
+    let p = new Promise((resolve) => {
+        setTimeout(() => {
+            resolve();
+        }, t2);
+    });
+    return p;
 }
 
-function wait3(t) {
-
+function wait3(t3) {
+    let p = new Promise((resolve) => {
+        setTimeout(() => {
+            resolve();
+        }, t3);
+    });
+    return p;
 }
 
 function calculateTime(t1, t2, t3) {
+    const startTime = Date.now();
 
+    const waitcall1 =  wait1(t1);
+    const waitcall2 =  wait2(t2);
+    const waitcall3 =  wait3(t3);
+
+    return Promise.all([waitcall1, waitcall2, waitcall3]).then(() => {
+        const endTime = Date.now();
+        const totalTime = endTime - startTime;
+        return totalTime;
+    });
 }
+
+calculateTime(1000, 2000, 3000)
+    .then((totalTime) => {
+        console.log(totalTime);
+    })
+    .catch((error) => {
+        console.error(error);
+    });
 
 module.exports = calculateTime;
