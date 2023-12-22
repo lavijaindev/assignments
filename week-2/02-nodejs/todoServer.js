@@ -39,11 +39,117 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-  const express = require('express');
-  const bodyParser = require('body-parser');
-  
-  const app = express();
-  
-  app.use(bodyParser.json());
-  
-  module.exports = app;
+ 
+const express = require('express');
+const bodyParser = require('body-parser');
+const fs = require('fs/promises');
+
+const app = express();
+app.use(bodyParser.json());
+
+const readFileAsync = async (filename) => {
+  try {
+    const data = await fs.readFile(filename, 'utf-8');
+    return JSON.parse(data);
+  } catch (err) {
+    throw err;
+  }
+};
+
+const writeFileAsync = async (filename, data) => {
+  try {
+    await fs.writeFile(filename, JSON.stringify(data));
+  } catch (err) {
+    throw err;
+  }
+};
+
+const getTodos = async (res) => {
+  try {
+    const todosData = await readFileAsync('todos.json');
+    res.json(todosData);
+  } catch (err) {
+    res.status(404).send('Data not found');
+  }
+};
+
+const getTodoById = async (id, res) => {
+  try {
+    const todosData = await readFileAsync('todos.json');
+    const todoItem = todosData.find((todo) => parseInt(todo.id) === parseInt(id));
+    res.json(todoItem);
+  } catch (err) {
+    throw err;
+  }
+};
+
+const updateTodosFile = async (todosData, res) => {
+  try {
+    await writeFileAsync('todos.json', todosData);
+    res.json('Updated records');
+  } catch (err) {
+    throw err;
+  }
+};
+
+app.get('/todos', (req, res) => {
+  getTodos(res);
+});
+
+app.get('/todos/:id', (req, res) => {
+  const id = req.params.id;
+  getTodoById(id, res);
+});
+
+app.post('/todos', async (req, res) => {
+  const itemData = {
+    id: Math.floor(Math.random() * 1000000),
+    title: req.body.title,
+    description: req.body.description,
+  };
+
+  try {
+    const todosData = await readFileAsync('todos.json');
+    todosData.push(itemData);
+    await updateTodosFile(todosData, res);
+  } catch (err) {
+    throw err;
+  }
+});
+
+app.put('/todos/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    let todosData = await readFileAsync('todos.json');
+    const index = todosData.findIndex((todo) => parseInt(todo.id) === parseInt(id));
+    if (index !== -1) {
+      const updatedTodo = {
+        id: todosData[index].id,
+        title: req.body.title,
+        description: req.body.description,
+      };
+      todosData[index] = updatedTodo;
+      await updateTodosFile(todosData, res);
+    }
+  } catch (err) {
+    throw err;
+  }
+});
+
+app.delete('/todos/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    let todosData = await readFileAsync('todos.json');
+    const index = todosData.findIndex((todo) => parseInt(todo.id) === parseInt(id));
+    if (index !== -1) {
+      todosData.splice(index, 1);
+      await updateTodosFile(todosData, res);
+    }
+  } catch (err) {
+    throw err;
+  }
+});
+
+app.listen(3000);
+
+module.exports = app;
